@@ -56,7 +56,7 @@
 
 using namespace std;
 
-void Sistema(double t, double *y, double* dydt){
+void Sistema(double *y, double* dydt){
     //V
     dydt[0] = pi_v*y[0] - (c_v1*y[0])/(c_v2+y[0]) - k_v1*y[0]*y[11] - k_v2*y[0]*y[6];
     //Ap
@@ -83,11 +83,12 @@ void Sistema(double t, double *y, double* dydt){
     dydt[11] = pi_ps*y[8] + pi_pl*y[9] - delta_a*y[11];
 }
 
-void saveData (double** y, double* t, double h, int pont, int inter){
-//    cout<<"Saving Data..."<<endl;
-    ofstream outputFile("output.csv",ios_base::app);
+void saveData (double** y, double* t, double h, int pont, int i_atual){
+    fstream outputFile("output.csv",fstream::app);
+    int x = (i_atual-1)/t_store;
+    cout<<"x "<< x <<endl<<"pont "<<pont<<endl<<"i_atual "<<i_atual<<endl;
     for(int i=0; i<pont; i++){
-        outputFile<<(inter-(pont*h)+i*h);
+        outputFile<<((x*t_store+i)*h);
         for(int j=0; j<eq;j++){
             outputFile<<","<<y[i][j];
         }
@@ -96,6 +97,20 @@ void saveData (double** y, double* t, double h, int pont, int inter){
     outputFile.close();
 }
 
+void SaveK(double* k, int lSave){
+
+    fstream fileOut;
+    char fileName[100];
+
+    sprintf(fileName, "k%d.dat", lSave);
+    fileOut.open(fileName, ios_base::out);
+
+    for(int i=0; i<eq; i++){
+        fileOut<<k[i]<<'\t'; 
+    }
+    fileOut<<endl; 
+    fileOut.close();    
+}
 
 void RK5(double* t, double h, double** y, int inter){
     double* k1 = new double[eq]; 
@@ -104,19 +119,20 @@ void RK5(double* t, double h, double** y, int inter){
     double* k4 = new double[eq];
     double* k5 = new double[eq]; 
     double* k6 = new double[eq];
-    int i; 
+    int i;
     for(i=1; i<inter; i++){
-        
-        if(i%t_store==0)
-            saveData(y,t,h,t_store,i);
-        
+        if(i%t_store==0){
+            cout<<"Saving Data "<<i<<endl;
+            saveData(y,t,h,t_store+i%t_store,i);
+        }
+
         //Calculando K1=f(t[i],y[i])
         if(i%t_store==0){
-            Sistema(t[t_store-1],y[t_store-1],k1);
+            Sistema(y[t_store-1],k1);
             cout<<"Tempo "<<i*h<<" dias"<<endl;
             cerr<<"Interacao "<<i<<endl;
         }else{
-            Sistema(t[i%t_store-1],y[i%t_store-1],k1);
+            Sistema(y[i%t_store-1],k1);
         }
 
         ofstream outputFile1("k1.csv",ios_base::app);
@@ -126,11 +142,14 @@ void RK5(double* t, double h, double** y, int inter){
         outputFile1<<endl;
         outputFile1.close();
         
-        //Calculando K2 = f(t[i]+(1/4)*h,y[i]+(1/4)*k1)
+        //Calculando K2 = f(t[i]+(1/5)*h,y[i]+(1/5)*k1)
         for(int j=0;j<eq;j++){ 
-            y[i%t_store][j] = (i%t_store == 0)?y[t_store-1][j]+(1/4)*k1[j]:y[i%t_store-1][j]+(1/4)*k1[j];
+            y[i%t_store][j] = (i%t_store == 0)?y[t_store-1][j]:y[i%t_store-1][j];
+            y[i%t_store][j] += (1.0/5.0)*k1[j];
+//            cout<<y[i%t_store][j]<<'\t';
         }
-        Sistema(t[i%t_store],y[i%t_store],k2);
+//        cout<<endl;
+        Sistema(y[i%t_store],k2);
 
         ofstream outputFile2("k2.csv",ios_base::app);
         for(int k=0; k<eq;k++){
@@ -139,14 +158,14 @@ void RK5(double* t, double h, double** y, int inter){
         outputFile2<<endl;
         outputFile2.close();
 
-        //Calculando K3 = f(t[i]+(3/8)*h,y[i]+(3/32)*k1+(9/32)*k2)
+        //Calculando K3 = f(y[i]+(3/40)*k1+(9/40)*k2)
         for(int j=0;j<eq;j++){
-            if(i%t_store == 0)
-                y[i%t_store][j] = y[t_store-1][j]+(3/32)*k1[j]+(9/32)*k2[j];
-            else
-                y[i%t_store][j] = y[i%t_store-1][j]+(3/32)*k1[j]+(9/32)*k2[j];
+            y[i%t_store][j] = (i%t_store == 0)?y[t_store-1][j]: y[i%t_store-1][j];
+            y[i%t_store][j] += (3.0/40.0)*k1[j]+(9.0/40.0)*k2[j];
+//        cout<<y[i%t_store][j]<<'\t';
         }
-        Sistema(t[i%t_store],y[i%t_store],k3);
+//        cout<<endl; 
+        Sistema(y[i%t_store],k3);
         
         ofstream outputFile3("k3.csv",ios_base::app);
         for(int k=0; k<eq;k++){
@@ -155,14 +174,14 @@ void RK5(double* t, double h, double** y, int inter){
         outputFile3<<endl;
         outputFile3.close();
 
-        //Calculando K4 = f(t[i]+(12/13)*h,y[i]+(1932/2197)*k1-(7200/2197)*k2+(7296/2197)*k3) 
+        //Calculando K4 = f(y[i]+(3/10)*k1-(9/10)*k2+(6/5)*k3) 
         for(int j=0;j<eq;j++){
-            if(i%t_store == 0)
-                y[i%t_store][j] = y[t_store-1][j]+(1932/2197)*k1[j]-(7200/2197)*k2[j]+(7296/2197)*k3[j];
-            else
-                y[i%t_store][j] = y[i%t_store-1][j]+(1932/2197)*k1[j]-(7200/2197)*k2[j]+(7296/2197)*k3[j];
+            y[i%t_store][j] = (i%t_store == 0)?y[t_store-1][j]: y[i%t_store-1][j];
+            y[i%t_store][j] += (3.0/10.0)*k1[j]-(9.0/10.0)*k2[j]+(6.0/5.0)*k3[j];
+//        cout<<y[i%t_store][j]<<'\t';
         }
-        Sistema(t[i%t_store],y[i%t_store],k4);
+//        cout<<endl; 
+        Sistema(y[i%t_store],k4);
         
         ofstream outputFile4("k4.csv",ios_base::app);
         for(int k=0; k<eq;k++){
@@ -171,15 +190,14 @@ void RK5(double* t, double h, double** y, int inter){
         outputFile4<<endl;
         outputFile4.close();
 
-        //Calculando K5 = f(t[i]+h,y[i]+(439/216)*k1-8*k2+(3680/513)*k3-(845/4104)*k4)
+        //Calculando K5 = f(y[i]-(11/54)*k1+(5/2)*k2-(70/27)*k3+(35/27)*k4)
         for(int j=0;j<eq;j++){
-            if(i%t_store == 0)
-                y[i%t_store][j] = y[t_store-1][j];
-            else
-                y[i%t_store][j] = y[i%t_store-1][j];
-            y[i%t_store][j]+=(439/216)*k1[j]-8*k2[j]+(3680/513)*k3[j]-(845/4104)*k4[j];
+            y[i%t_store][j] = (i%t_store == 0)?y[t_store-1][j]:y[i%t_store-1][j];
+            y[i%t_store][j]+= -(11.0/54.0)*k1[j]+(5.0/2.0)*k2[j]-(70.0/27.0)*k3[j]+(35.0/27.0)*k4[j];
+//        cout<<y[i%t_store][j]<<'\t';
         }
-        Sistema(t[i%t_store],y[i%t_store],k6);
+//        cout<<endl;
+        Sistema(y[i%t_store],k5);
         
         ofstream outputFile5("k5.csv",ios_base::app);
         for(int k=0; k<eq;k++){
@@ -187,12 +205,15 @@ void RK5(double* t, double h, double** y, int inter){
         }
         outputFile5<<endl;
         outputFile5.close();
-        //Calculando K6 = f(t[i]+0,5*h,y[i]-(8/27)*k1+2*k2-(3544/2565)*k3+(1859/4104)*k4-(11/40)*k5))
+
+        //Calculando K6 = f(y[i]+(1631/55296)*k1+(175/512)*k2+(575/13824)*k3+(44275/110592)*k4+(253/4096)*k5))
         for(int j=0;j<eq;j++){
-            y[i%t_store][j]= (i%t_store==0) ? y[t_store-1][j] : y[i%t_store-1][j];
-            y[i%t_store][j]+=-(8/27)*k1[j]+2*k2[j]-(3544/2565)*k3[j]+(1859/4104)*k4[j]-(11/40)*k5[j];
+            y[i%t_store][j] = (i%t_store==0) ? y[t_store-1][j] : y[i%t_store-1][j];
+            y[i%t_store][j]+= (1631.0/55296.0)*k1[j]+(175.0/512.0)*k2[j]+(575.0/13824.0)*k3[j]+(44275.0/110592.0)*k4[j]+(253.0/4096.0)*k5[j];
+//        cout<<y[i%t_store][j]<<'\t';
         }
-        Sistema(t[i%t_store],y[i%t_store],k6);
+//        cout<<endl;
+        Sistema(y[i%t_store],k6);
 
         ofstream outputFile6("k6.csv",ios_base::app);
         for(int k=0; k<eq;k++){
@@ -201,10 +222,10 @@ void RK5(double* t, double h, double** y, int inter){
         outputFile6<<endl;
         outputFile6.close();
 
-        //Calculando o y para cada eq h*(16*k1[j]/135 + 6656*k3[j]/12825 + 28561*k4[j]/56430 - 9*k5[j]/50 + 2*k6[j]/55);
+        //Calculando o y para cada eq h*(37*k1[j]/378 +0*k2[j] 250*k3[j]/621 + 125*k4[j]/594 +0*k5[j] + 512*k6[j]/1771);
         for(int j=0;j<eq;j++){
             y[i%t_store][j] = (i%t_store==0)?y[t_store-1][j]:y[i%t_store-1][j];
-            y[i%t_store][j] += h*((37/378)*k1[j]+(250/621)*k3[j]+(125/594)*k4[j]+(512/1771)*k6[j]);
+            y[i%t_store][j] += h*((37.0/378.0)*k1[j]+(250.0/621.0)*k3[j]+(125.0/594.0)*k4[j]+(512.0/1771.0)*k6[j]);
         }
         
 		//passo de tempo
@@ -219,7 +240,7 @@ int main(){
 	
 	double t0 = 0.0;
 	double t_final = 45.0;
-	double h = 0.01;
+	double h = 0.0000001;
 	int inter = int(abs(t_final-t0)/h);
     cout<<"Numero de interacoes: "<<inter<<endl;
 	double t[t_store] = {t0};
