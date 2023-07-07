@@ -2,7 +2,7 @@
 #include <cmath>
 #include <fstream>
 
-#define eq 12 
+#define eq 2 
 #define t_store 1000        //Intervalo de pontos sendo salvos
 
 //Parametros:
@@ -65,7 +65,7 @@ void SistemaTeste(double *y, double* dydt){
 
 void SistemaTeste2(double *y, double* dydt){
     double rmax = 0.5;
-    double m = 0.5;
+    double m = 0.50;
     double s = 3.0;
     double a1 = 0.3;
     double a2 = 0.7;
@@ -157,11 +157,11 @@ void RK5(double* t, double h, double** y, int inter){
 
         //Calculando K1=f(t[i],y[i])
         if(p==0){
-            Sistema(y[t_store-1],k1); // passo de tempo anterior = ultima posicao do vetor
+            SistemaTeste2(y[t_store-1],k1); // passo de tempo anterior = ultima posicao do vetor
             cout<<"Tempo "<<i*h<<" dias"<<endl;
             cerr<<"Interacao "<<i<<endl;
         }else{
-            Sistema(y[p-1],k1);
+            SistemaTeste2(y[p-1],k1);
         }
         SaveK(k1, lSave, i*h);
 
@@ -171,7 +171,7 @@ void RK5(double* t, double h, double** y, int inter){
             yk[j] = (p == 0)?y[t_store-1][j] : y[p-1][j];
             yk[j] += (1.0/5.0)*k1[j];
         }
-        Sistema(yk,k2);
+        SistemaTeste2(yk,k2);
         SaveK(k2, lSave, i*h);
 
         //Calculando K3 = f(y[i]+(3/40)*k1+(9/40)*k2)
@@ -180,7 +180,7 @@ void RK5(double* t, double h, double** y, int inter){
             yk[j] = (p == 0)?y[t_store-1][j] : y[p-1][j];
             yk[j] += (3.0/40.0)*k1[j]+(9.0/40.0)*k2[j];
         }
-        Sistema(yk,k3);
+        SistemaTeste2(yk,k3);
         SaveK(k3, lSave, i*h);
 
         //Calculando K4 = f(y[i]+(3/10)*k1-(9/10)*k2+(6/5)*k3)
@@ -189,7 +189,7 @@ void RK5(double* t, double h, double** y, int inter){
             yk[j] = (p == 0)?y[t_store-1][j] : y[p-1][j];
             yk[j] += (3.0/10.0)*k1[j]-(9.0/10.0)*k2[j]+(6.0/5.0)*k3[j];
         }
-        Sistema(yk,k4);
+        SistemaTeste2(yk,k4);
         SaveK(k4, lSave, i*h);
 
         //Calculando K5 = f(y[i]-(11/54)*k1+(5/2)*k2-(70/27)*k3+(35/27)*k4)
@@ -198,7 +198,7 @@ void RK5(double* t, double h, double** y, int inter){
             yk[j] = (p == 0)?y[t_store-1][j] : y[p-1][j];
             yk[j]+= -(11.0/54.0)*k1[j]+(5.0/2.0)*k2[j]-(70.0/27.0)*k3[j]+(35.0/27.0)*k4[j];
         }
-        Sistema(yk,k5);
+        SistemaTeste2(yk,k5);
         SaveK(k5, lSave, i*h);
 
         //Calculando K6 = f(y[i]+(1631/55296)*k1+(175/512)*k2+(575/13824)*k3+(44275/110592)*k4+(253/4096)*k5))
@@ -207,7 +207,7 @@ void RK5(double* t, double h, double** y, int inter){
             yk[j] = (p == 0) ? y[t_store-1][j] : y[p-1][j];
             yk[j]+= (1631.0/55296.0)*k1[j]+(175.0/512.0)*k2[j]+(575.0/13824.0)*k3[j]+(44275.0/110592.0)*k4[j]+(253.0/4096.0)*k5[j];
         }
-        Sistema(yk,k6);
+        SistemaTeste2(yk,k6);
         SaveK(k6, lSave, i*h);
 
         //Calculando o y para cada eq h*(37*k1[j]/378 +0*k2[j] 250*k3[j]/621 + 125*k4[j]/594 +0*k5[j] + 512*k6[j]/1771);
@@ -228,8 +228,25 @@ void RK5(double* t, double h, double** y, int inter){
 int main(){
 
     double t0 = 0.0;
-    double t_final = 100.0;//50;//S3:20.0;//45.0;
-    double h = 0.001;//1;//S3:0.00001;
+    
+//    double t_final = 100.0;
+    
+    //SistemaTeste 2:
+    double t_final = 50.0;
+    
+    //SistemaTeste 3:
+    //double t_final = 20.0;
+
+    //Sistema:
+    //double t_final = 45.0;
+    //double h = 0.001;
+    
+    //SistemaTeste 2:
+    double h = 0.01;
+    
+    //SistemaTeste 3:
+    //double h = 0.00001;
+
     int inter = int(abs(t_final-t0)/h);
     cout<<"Numero de interacoes: "<<inter<<endl;
     double t[t_store] = {t0};
@@ -238,6 +255,8 @@ int main(){
     for(int i = 0; i<t_store; i++)
         y[i] = new double[eq];
 
+/*
+//Sistema
     y[0][0] = V0;
     y[0][1] = Ap0;
     y[0][2] = Apm0;
@@ -250,17 +269,18 @@ int main(){
     y[0][9] = Pl0;
     y[0][10] = Bm0;
     y[0][11] = A0;
-
-//Sistema 3:
-/*    y[0][0] = 1.0;
+*/
+/*
+    //SistemaTeste 3:
+    y[0][0] = 1.0;
     y[0][1] = 1.0;
 */
 
-/*
-    //Sistema 2:
+
+    //SistemaTeste 2:
     y[0][0] = 0.5;
     y[0][1] = 1.0;
-*/
+
 
     ofstream outputFile("output.csv");
     outputFile<<"t,V,Ap,Apm,Thn,The,Tkn,Tke,B,Ps,Pl,Bm,A"<<endl;
