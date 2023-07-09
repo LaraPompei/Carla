@@ -2,47 +2,46 @@
 #include <cmath>
 #include <fstream>
 
-#define eq 2 
+#define eq 12 
 #define t_store 1000        //Intervalo de pontos sendo salvos
 
 //Parametros:
 
-#define pi_v 0.68           //Taxa de replicacao viral
+#define pi_v 6.8e-1         //Taxa de replicacao viral
 #define c_v1 2.63           //Taxa de clareamento viral maximo pelo sistema inato
-#define c_v2 0.6            //Constante de meia saturacao
-#define k_v1 0.0000482      //Taxa de neutralizacao do virus por unidade anticorpos neutralizantes
-#define k_v2 0.000000748    //Taxa de eliminacao do virus por unidade de celulas T CD8+
-#define alpha_ap 0.0025     //Taxa de hosmeostase das APCs imaturas
-#define beta_ap 0.55        // Taxa de maturacao das APCs 
-#define c_ap1 0.8           //Taxa de maturacao maxima das APCs
-#define c_ap2 40.0          //Constante de meia ativacao
-#define delta_apm 0.538     //Taxa de morte das APCs maduras
-#define alpha_th 0.000217   //Taxa de gineistase das celulas T CD4+
-#define beta_th 0.0000001   //Taxa de replicacao das celulas T CD4+ naive
-#define pi_th 0.00000001    //Taxa de replicacao das celulas T CD4+ efetoras
-#define delta_th 0.22       //Taxa de morte das celulas T CD4+ efetoras
-#define alpha_tk 0.000217   //Taxa de homeostase das celulas T CD8+
-#define beta_tk 0.000001    //Taxa de ativacao das celulas T CD8+ naive
-#define pi_tk 0.00000001    //Taxa de replicacao das celulas T CD8+ efetoras
-#define delta_tk 0.0003     //Taxa de morte das celulas T CD8+ efetoras
+#define c_v2 6e-1           //Constante de meia saturacao
+#define k_v1 4.82e-5        //Taxa de neutralizacao do virus por unidade anticorpos neutralizantes
+#define k_v2 7.48e-7        //Taxa de eliminacao do virus por unidade de celulas T CD8+
+#define alpha_ap 2.5e-3     //Taxa de hosmeostase das APCs imaturas
+#define beta_ap 5.5e-1      // Taxa de maturacao das APCs 
+#define c_ap1 8e-1          //Taxa de maturacao maxima das APCs
+#define c_ap2 4e1           //Constante de meia ativacao
+#define delta_apm 5.38e-1   //Taxa de morte das APCs maduras
+#define alpha_th 2.17e-4    //Taxa de gineistase das celulas T CD4+
+#define beta_th 1e-7        //Taxa de replicacao das celulas T CD4+ naive
+#define pi_th 1e-8          //Taxa de replicacao das celulas T CD4+ efetoras
+#define delta_th 2.2e-1     //Taxa de morte das celulas T CD4+ efetoras
+#define alpha_tk 2.17e-4    //Taxa de homeostase das celulas T CD8+
+#define beta_tk 1e-5        //Taxa de ativacao das celulas T CD8+ naive
+#define pi_tk 1e-8          //Taxa de replicacao das celulas T CD8+ efetoras
+#define delta_tk 3e-4       //Taxa de morte das celulas T CD8+ efetoras
 #define alpha_b 6.0         //Taxa de homeostase das celulas B
-#define pi_b1 0.00000483    //Taxa de ativacao das celulas B T-independente
-#define pi_b2 0.0000000127  //Taxa de ativacao das celulas B T-dependentes
-#define beta_ps 0.000672    //Taxa de diferenciacao das celulas B ativas em plasmocitos de vida curta
-#define beta_pl 0.00000561  //Taxa de diferenciacao das celulas B ativas em plasmocitos de vida longa
-#define beta_bm 0.000001    //Taxa de diferenciacao das celulas B ativas em celulas B de memoria
+#define pi_b1 4.83e-6       //Taxa de ativacao das celulas B T-independente
+#define pi_b2 1.27e-8       //Taxa de ativacao das celulas B T-dependentes
+#define beta_ps 6.72e-4     //Taxa de diferenciacao das celulas B ativas em plasmocitos de vida curta
+#define beta_pl 5.61e-6     //Taxa de diferenciacao das celulas B ativas em plasmocitos de vida longa
+#define beta_bm 1e-6        //Taxa de diferenciacao das celulas B ativas em celulas B de memoria
 #define delta_ps 2.0        //Taxa de morte dos plasmocitos de vida curta
-#define delta_pl 0.00024    //Taxa de morte dos plasmocitos de vida longa
-#define gama_bm 0.000975    //Taxa de diferenciacao das celulas B de memoria em plasmocitos de vida longa
-#define pi_bm1 0.00001      //Taxa de proliferacao das celulas B de memoria
-#define pi_bm2 2500.0           //Constante de crescimento maximo
-#define pi_ps 0.002         //Taxa de secrecao de anticorpos por unidade de plasmocitos de vida curta
-#define pi_pl 0.00068       //Taxa de secrecao de anticorpos por unidade de plasmocitos ded vida longa
-#define delta_a 0.04        //Taxa de morte de anticorpos
+#define delta_pl 2.4e-4     //Taxa de morte dos plasmocitos de vida longa
+#define gama_bm 9.75e-4     //Taxa de diferenciacao das celulas B de memoria em plasmocitos de vida longa
+#define pi_bm1 1e-5         //Taxa de proliferacao das celulas B de memoria
+#define pi_bm2 2.5e3        //Constante de crescimento maximo
+#define pi_ps 2e-3          //Taxa de secrecao de anticorpos por unidade de plasmocitos de vida curta
+#define pi_pl 6.8e-4        //Taxa de secrecao de anticorpos por unidade de plasmocitos ded vida longa
+#define delta_a 4e-2        //Taxa de morte de anticorpos
 
 //Condicoes iniciais
-//#define V0 724.0
-#define V0 27476
+#define V0 724.0
 #define Ap0 1000000.0
 #define Apm0 0.0
 #define Thn0 1000000.0
@@ -157,11 +156,11 @@ void RK5(double* t, double h, double** y, int inter){
 
         //Calculando K1=f(t[i],y[i])
         if(p==0){
-            SistemaTeste2(y[t_store-1],k1); // passo de tempo anterior = ultima posicao do vetor
+            Sistema(y[t_store-1],k1); // passo de tempo anterior = ultima posicao do vetor
             cout<<"Tempo "<<i*h<<" dias"<<endl;
             cerr<<"Interacao "<<i<<endl;
         }else{
-            SistemaTeste2(y[p-1],k1);
+            Sistema(y[p-1],k1);
         }
         SaveK(k1, lSave, i*h);
 
@@ -171,7 +170,7 @@ void RK5(double* t, double h, double** y, int inter){
             yk[j] = (p == 0)?y[t_store-1][j] : y[p-1][j];
             yk[j] += (1.0/5.0)*k1[j];
         }
-        SistemaTeste2(yk,k2);
+        Sistema(yk,k2);
         SaveK(k2, lSave, i*h);
 
         //Calculando K3 = f(y[i]+(3/40)*k1+(9/40)*k2)
@@ -180,7 +179,7 @@ void RK5(double* t, double h, double** y, int inter){
             yk[j] = (p == 0)?y[t_store-1][j] : y[p-1][j];
             yk[j] += (3.0/40.0)*k1[j]+(9.0/40.0)*k2[j];
         }
-        SistemaTeste2(yk,k3);
+        Sistema(yk,k3);
         SaveK(k3, lSave, i*h);
 
         //Calculando K4 = f(y[i]+(3/10)*k1-(9/10)*k2+(6/5)*k3)
@@ -189,7 +188,7 @@ void RK5(double* t, double h, double** y, int inter){
             yk[j] = (p == 0)?y[t_store-1][j] : y[p-1][j];
             yk[j] += (3.0/10.0)*k1[j]-(9.0/10.0)*k2[j]+(6.0/5.0)*k3[j];
         }
-        SistemaTeste2(yk,k4);
+        Sistema(yk,k4);
         SaveK(k4, lSave, i*h);
 
         //Calculando K5 = f(y[i]-(11/54)*k1+(5/2)*k2-(70/27)*k3+(35/27)*k4)
@@ -198,7 +197,7 @@ void RK5(double* t, double h, double** y, int inter){
             yk[j] = (p == 0)?y[t_store-1][j] : y[p-1][j];
             yk[j]+= -(11.0/54.0)*k1[j]+(5.0/2.0)*k2[j]-(70.0/27.0)*k3[j]+(35.0/27.0)*k4[j];
         }
-        SistemaTeste2(yk,k5);
+        Sistema(yk,k5);
         SaveK(k5, lSave, i*h);
 
         //Calculando K6 = f(y[i]+(1631/55296)*k1+(175/512)*k2+(575/13824)*k3+(44275/110592)*k4+(253/4096)*k5))
@@ -207,7 +206,7 @@ void RK5(double* t, double h, double** y, int inter){
             yk[j] = (p == 0) ? y[t_store-1][j] : y[p-1][j];
             yk[j]+= (1631.0/55296.0)*k1[j]+(175.0/512.0)*k2[j]+(575.0/13824.0)*k3[j]+(44275.0/110592.0)*k4[j]+(253.0/4096.0)*k5[j];
         }
-        SistemaTeste2(yk,k6);
+        Sistema(yk,k6);
         SaveK(k6, lSave, i*h);
 
         //Calculando o y para cada eq h*(37*k1[j]/378 +0*k2[j] 250*k3[j]/621 + 125*k4[j]/594 +0*k5[j] + 512*k6[j]/1771);
@@ -229,24 +228,19 @@ int main(){
 
     double t0 = 0.0;
     
-//    double t_final = 100.0;
-    
     //SistemaTeste 2:
-    double t_final = 50.0;
-    
+    //double t_final = 50.0;
+    //double h = 0.01;
+
     //SistemaTeste 3:
     //double t_final = 20.0;
+    //double h = 0.00001;
 
     //Sistema:
     //double t_final = 45.0;
-    //double h = 0.001;
+    double t_final = 100.0;
+    double h = 0.001;
     
-    //SistemaTeste 2:
-    double h = 0.01;
-    
-    //SistemaTeste 3:
-    //double h = 0.00001;
-
     int inter = int(abs(t_final-t0)/h);
     cout<<"Numero de interacoes: "<<inter<<endl;
     double t[t_store] = {t0};
@@ -255,7 +249,7 @@ int main(){
     for(int i = 0; i<t_store; i++)
         y[i] = new double[eq];
 
-/*
+
 //Sistema
     y[0][0] = V0;
     y[0][1] = Ap0;
@@ -269,18 +263,18 @@ int main(){
     y[0][9] = Pl0;
     y[0][10] = Bm0;
     y[0][11] = A0;
+
+/*
+//SistemaTeste 2:
+    y[0][0] = 0.5;
+    y[0][1] = 1.0;
 */
+
 /*
     //SistemaTeste 3:
     y[0][0] = 1.0;
     y[0][1] = 1.0;
 */
-
-
-    //SistemaTeste 2:
-    y[0][0] = 0.5;
-    y[0][1] = 1.0;
-
 
     ofstream outputFile("output.csv");
     outputFile<<"t,V,Ap,Apm,Thn,The,Tkn,Tke,B,Ps,Pl,Bm,A"<<endl;
