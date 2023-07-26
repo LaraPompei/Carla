@@ -29,10 +29,16 @@
 #define pi_b1 4.83e-6       //Taxa de ativacao das celulas B T-independente
 #define pi_b2 1.27e-8       //Taxa de ativacao das celulas B T-dependentes
 #define beta_ps 6.72e-4     //Taxa de diferenciacao das celulas B ativas em plasmocitos de vida curta
-#define beta_pl 1.68e-6     //Taxa de diferenciacao das celulas B ativas em plasmocitos de vida longa
+//#define beta_pl 1.68e-6     //Taxa de diferenciacao das celulas B ativas em plasmocitos de vida longa
+//#define beta_pl 2.66e-6   //I1
+//#define beta_pl 3.65e-6   //I2
+#define beta_pl 4.63e-6 //I3
 #define beta_bm 1e-6        //Taxa de diferenciacao das celulas B ativas em celulas B de memoria
 #define delta_ps 2.0        //Taxa de morte dos plasmocitos de vida curta
-#define delta_pl 4.8e-4     //Taxa de morte dos plasmocitos de vida longa
+//#define delta_pl 4.8e-4     //Taxa de morte dos plasmocitos de vida longa
+//#define delta_pl 4.2e-4   //I1
+//#define delta_pl 3.6e-4   //I2
+#define delta_pl 3.0e-4   //I3
 #define gama_bm 9.75e-4     //Taxa de diferenciacao das celulas B de memoria em plasmocitos de vida longa
 #define pi_bm1 1e-5         //Taxa de proliferacao das celulas B de memoria
 #define pi_bm2 2.5e3        //Constante de crescimento maximo
@@ -238,8 +244,8 @@ int main(){
 
     //Sistema:
     //double t_final = 45.0;
-    //double t_final = 100.0;
-    double t_final = 4000.0;
+    double t_final = 100.0;
+    //double t_final = 4000.0;
     double h = 0.001;
         
     int inter = int(abs(t_final-t0)/h);

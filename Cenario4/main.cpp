@@ -25,27 +25,33 @@
 #define beta_tk 1e-5        //Taxa de ativacao das celulas T CD8+ naive
 #define pi_tk 1e-8          //Taxa de replicacao das celulas T CD8+ efetoras
 #define delta_tk 3e-4       //Taxa de morte das celulas T CD8+ efetoras
-#define alpha_b 3.0         //Taxa de homeostase das celulas B
+
+//#define alpha_b 3.0         //Taxa de homeostase das celulas B
 //#define alpha_b 3.75      //I1
 //#define alpha_b 4.5       //I2
-//#define alpha_b 5.25      //I3
+#define alpha_b 5.25      //I3
+
 #define pi_b1 4.83e-6       //Taxa de ativacao das celulas B T-independente
 #define pi_b2 1.27e-8       //Taxa de ativacao das celulas B T-dependentes
-#define beta_ps 6.72e-4     //Taxa de diferenciacao das celulas B ativas em plasmocitos de vida curta
+
+//#define beta_ps 6.72e-4     //Taxa de diferenciacao das celulas B ativas em plasmocitos de vida curta
 //#define beta_ps 3.36e-4   //CS+bDMARD
 //#define beta_ps 4.2e-4   //I1
 //#define beta_ps 5.04e-4   //I2
-//#define beta_ps 5.88e-4   //I3
-#define beta_pl 5.61e-6     //Taxa de diferenciacao das celulas B ativas em plasmocitos de vida longa
+#define beta_ps 5.88e-4   //I3
+
+//#define beta_pl 5.61e-6     //Taxa de diferenciacao das celulas B ativas em plasmocitos de vida longa
 //#define beta_pl 2.8e-6   //CS+bDMARD
 //#define beta_pl 3.5e-6   //I1
 //#define beta_pl 4.2e-6   //I2
-//#define beta_pl 4.9e-6   //I3
-#define beta_bm 1e-6        //Taxa de diferenciacao das celulas B ativas em celulas B de memoria
+#define beta_pl 4.9e-6   //I3
+
+//#define beta_bm 1e-6        //Taxa de diferenciacao das celulas B ativas em celulas B de memoria
 //#define beta_bm 5e-7      //CS+bDMARD
-//#define beta_bm 6.25E-7   //I1
+//#define beta_bm 6.25e-7   //I1
 //#define beta_bm 7.5e-7    //I2
-//#define beta_bm 8.75e-7   //I3
+#define beta_bm 8.75e-7   //I3
+
 #define delta_ps 2.0        //Taxa de morte dos plasmocitos de vida curta
 #define delta_pl 2.4e-4     //Taxa de morte dos plasmocitos de vida longa
 #define gama_bm 9.75e-4     //Taxa de diferenciacao das celulas B de memoria em plasmocitos de vida longa
@@ -63,11 +69,11 @@
 #define The0 0.0
 #define Tkn0 5.0e5
 #define Tke0 0.0
-#define B0 2.5e5
+//#define B0 2.5e5
 //#define B0 1.875e5
 //#define B0 2.03e5     //I1
 //#define B0 2.19e5     //I2
-//#define B0 2.35e5     //I3
+#define B0 2.35e5     //I3
 #define Ps0 0.0
 #define Pl0 0.0
 #define Bm0 0.0

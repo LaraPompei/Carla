@@ -41,7 +41,12 @@
 #define delta_a 4e-2        //Taxa de morte de anticorpos
 
 //Condicoes iniciais
-#define V0 724.0
+//#define V0 724.0
+//#define V0 275.28
+//#define V0 79.39
+//#define V0 15.47
+//#define V0 4.16
+#define V0 0.82
 #define Ap0 1.0e6
 #define Apm0 0.0
 #define Thn0 1.0e6
